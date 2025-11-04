@@ -90,7 +90,7 @@ export default function HomeScreen() {
       </View>
       <View style={styles.listWrapper}>
           <Text style={styles.midText_r}>Artist</Text>
-          <ScrollView style={styles.wrapper}>
+          <View style={styles.wrapper}>
             <FlatList
               data={artist_data}
               renderItem={ArtistItem}
@@ -98,11 +98,11 @@ export default function HomeScreen() {
               contentContainerStyle={styles.list}
               nestedScrollEnabled={true}
             />
-          </ScrollView>
+          </View>
       </View >
       <View style={styles.listWrapper}>
         <Text style={styles.midText_c}>Concert</Text>
-        <ScrollView style={styles.wrapper}>
+        <View style={styles.wrapper}>
           <FlatList
             data={concert_data}
             renderItem={ConcertItem}
@@ -110,7 +110,7 @@ export default function HomeScreen() {
             contentContainerStyle={styles.list}
             nestedScrollEnabled={true}
           />
-        </ScrollView>
+        </View>
       </View >
     </View>
   );

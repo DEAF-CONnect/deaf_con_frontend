@@ -39,15 +39,13 @@ export default function BoardScreen() {
         <Text style={styles.titleText}>게시판</Text>
       </View>
       <View style={styles.listWrapper}>
-          <ScrollView style={styles.wrapper}>
-            <FlatList
-              data={data}
-              renderItem={MessageItem}
-              keyExtractor={item => item.id}
-              contentContainerStyle={styles.list}
-              nestedScrollEnabled={true}
-            />
-          </ScrollView>
+        <FlatList
+          data={data}
+          renderItem={MessageItem}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.list}
+          nestedScrollEnabled={true}
+        />
       </View >
     </View>
   );

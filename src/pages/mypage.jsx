@@ -5,18 +5,16 @@ export default function MypageScreen() {
   const [showLogout, setShowLogout] = useState(false);
   const [showText, setShowText] = useState(false);
   const logout = () => {
-     // 로그아웃 버튼 띄우기
     setShowLogout(!showLogout);
   };
   const xToggle = () => {
-    // input 
     setShowText(!showText);
   };
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style= {styles.topWrapper}>
-  `     {/* 프로필 이미지 */}
+       {/* 프로필 이미지 */}
         <Image
           source={require('../../assets/images/dami.jpeg')}
           style={styles.profileImage}
