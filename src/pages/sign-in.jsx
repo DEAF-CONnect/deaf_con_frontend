@@ -10,7 +10,7 @@ export default function LoginScreen({navigation}) {
   const onConfirm = () => {
     // 로그인 처리 로직 작성
     console.log('Confirm clicked', email, password);
-    navigation.navigate('Home')
+    navigation.navigate('Tabs', { screen: 'Home' });
     
   };
 

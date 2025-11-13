@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput,Image,ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput,Image,ScrollView, TouchableOpacity, Alert, Linking } from 'react-native';
 
 const artist_data = [
   {
@@ -49,14 +49,25 @@ const concert_data= [
 ];
 export default function HomeScreen() {
 
-  const openUnityApp = () => {
-    alert("해당 콘서트 AR 모드 시작합니다 !");  // Unity 앱 대신 알림 띄우기
+  const openUnityApp = async () => {
+    try {
+      const unityPackage = 'com.unity.template.ar_mobile'
+
+      const supported = await Linking.canOpenURL(`intent://#Intent;package=${unityPackage};end`);
+      if (supported) {
+        await Linking.openURL(`intent://#Intent;package=${unityPackage};end`);
+      } else {
+        Alert.alert('유니티 앱이 설치되어 있지 않습니다.');
+      }
+    }catch(error){
+      console.error('앱 실행 실패: ', error);
+      Alert.alert('앱 실행 중 오류 발생')
+    }
   };
 
   const ArtistItem = ({ item }) => (
     <TouchableOpacity
     style={styles.item}
-    onPress={() => openUnityApp()}  // 클릭 시 Unity 앱 열기
     >
       <Image source={ item.image } style={styles.itemImage} />
       <View style={styles.textContainer}>
@@ -68,7 +79,7 @@ export default function HomeScreen() {
   const ConcertItem = ({ item }) => (
     <TouchableOpacity
     style={styles.item}
-    onPress={() => openUnityApp()}  // 클릭 시 Unity 앱 열기
+    onPress={openUnityApp}  // 클릭 시 Unity 앱 열기
     >
       <Image source={ item.image } style={styles.itemImage} />
       <View style={styles.textContainer}>
