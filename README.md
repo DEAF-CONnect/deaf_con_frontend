@@ -1,3 +1,14 @@
+빌드는 따로 넣지 않았습니다.
+
+# react-native에서 외부 apk 연결 및 빌드 환경 시 문제 해결법
+
+## 외부 APK 작업 시
+> **NOTE**: Android, Ios 환경에서 빼먹은 거 반드시 있는지 확인 !
+
+## 빌드 환경 시 
+> **NOTE**: Android, Ios 빌드 clean 후 RE , JS 번들 확인 !
+
+
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
 # Getting Started
