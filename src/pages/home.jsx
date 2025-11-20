@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput,Image,ScrollView, TouchableOpacity, Alert, Linking } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput,Image, TouchableOpacity, Alert, Linking } from 'react-native';
+import { NativeModules } from 'react-native';
+import SendIntentAndroid from 'react-native-send-intent';
 
 const artist_data = [
   {
@@ -48,22 +50,36 @@ const concert_data= [
   }
 ];
 export default function HomeScreen() {
-
+  
   const openUnityApp = async () => {
-    try {
-      const unityPackage = 'com.unity.template.ar_mobile'
-
-      const supported = await Linking.canOpenURL(`intent://#Intent;package=${unityPackage};end`);
-      if (supported) {
-        await Linking.openURL(`intent://#Intent;package=${unityPackage};end`);
-      } else {
-        Alert.alert('유니티 앱이 설치되어 있지 않습니다.');
-      }
-    }catch(error){
-      console.error('앱 실행 실패: ', error);
-      Alert.alert('앱 실행 중 오류 발생')
-    }
+    const unityPackageName = 'com.unity.template.ar_mobile';
+    
+    console.log("🔥 [JS] openUnityApp() 실행됨");
+    console.log("🔥 [JS] 패키지명:", unityPackageName);
+    SendIntentAndroid.isAppInstalled(unityPackageName)
+      .then((isInstalled)=> {
+        console.log("🔥 [JS] isAppInstalled 결과:", isInstalled);
+        if(isInstalled) {
+          console.log("🔥 [JS] 앱 설치됨 → openApp 호출 시도");
+          SendIntentAndroid.openApp(unityPackageName, {})
+            .then((wasOpened) => {
+                console.log("🔥 [JS] openApp 실행 결과 wasOpened:", wasOpened);
+            })
+            .catch((err)=> {
+              console.log("🔥 [JS] openApp 실행 중 ERROR 발생:", err);
+            });
+        } else {
+          Alert.alert(
+            "앱 없음", 
+            "유니티 게임 앱이 설치되지 않았습니다."
+          );
+        }
+      })
+      .catch((err)=> {
+        console.log("🔥 [JS] isAppInstalled ERROR:", err);
+      });
   };
+
 
   const ArtistItem = ({ item }) => (
     <TouchableOpacity
