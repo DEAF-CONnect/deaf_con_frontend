@@ -1,17 +1,43 @@
 import { createStaticNavigation } from '@react-navigation/native';
 import { NavigationContainer } from '@react-navigation/native';
 import React, { useState } from 'react';
+import { Alert } from 'react-native';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 //dimport HomePage from './src/pages/home' ; 
 export default function LoginScreen({navigation}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const onConfirm = () => {
+  const onConfirm = async () => {
     // 로그인 처리 로직 작성
-    console.log('Confirm clicked', email, password);
-    navigation.navigate('Tabs', { screen: 'Home' });
-    
+    if (!email || !password) {
+      Alert.alert("입력 오류", "이메일과 비밀번호를 입력하세요.");
+      return;
+    }
+    try {
+      const response = await fetch('http://3.35.41.240:8080/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', 
+        },
+        body: JSON.stringify({ email: email, password: password }),
+    });
+      //const data = await response.json();
+      if (response.status === 200) {
+        navigation.navigate('Tabs', { screen: 'Home' });
+        // 로그인 성공 시 처리 로직 추가
+      } else if(response.status === 201) {
+        Alert.alert("새로운회원", "다시 로그인해주세요");
+      } else if(response.status === 401) {
+        Alert.alert("로그인 실패", "이메일 또는 비밀번호가 올바르지 않습니다.");
+      } else {
+        console.log("status:",response.status)
+        Alert.alert("오류", "로그인에 실패했;습니다. 다시 시도해주세요.");
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      Alert.alert("오류", "로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
+    }
   };
 
   return (

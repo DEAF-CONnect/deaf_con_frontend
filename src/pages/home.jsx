@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TextInput,Image, TouchableOpacity, Alert, Linking } from 'react-native';
-import { NativeModules } from 'react-native';
 import SendIntentAndroid from 'react-native-send-intent';
-
+import { useEffect, useState } from 'react';
 const artist_data = [
   {
     id: '1',
@@ -50,18 +49,84 @@ const concert_data= [
   }
 ];
 export default function HomeScreen() {
-  
-  const openUnityApp = async () => {
+  const [concerts, setConcerts] = useState(concert_data);
+  const [artists, setArtists] = useState(artist_data);
+  // 🔥 화면 렌더 후 API 요청 실행
+  useEffect(() => {
+    fetchConcertData();
+  }, []);
+  useEffect(() => {
+    fetchArtistData();
+  }, []);
+  // 🎯 서버에서 콘서트 목록 조회
+  const fetchConcertData = async () => {
+    try {
+      const response = await fetch("http://3.35.41.240:8080/api/concerts", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+      const data = await response.json();
+      console.log("콘서트 목록 불러옴:", data);
+      //기존 concert_data 와 서버에서 받아온 data 병합
+      const merged = [
+        ...concert_data,
+        ...data.map((item) =>({
+          id: item.concertId,
+          title: item.title,
+          date: item.date,
+          image: { uri: item.posterUrl }
+        }))
+      ];
+      setConcerts(merged);   // ← 받아온 데이터를 FlatList에 사용
+
+    } catch (error) {
+      console.error("콘서트 불러오기 실패:", error);
+    }
+  };
+  // 🎯 서버에서 아티스트 목록 조회
+  const fetchArtistData = async () => {
+    try {
+      const response = await fetch("http://3.35.41.240:8080/api/artists", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+      const data = await response.json();
+      console.log("아티스트 목록 불러옴:", data);
+      //기존 artist_data 와 서버에서 받아온 data 병합
+      const merged = [
+        ...artist_data,
+        ...data.map((item) =>({
+          id: item.artistId,
+          title: item.title,
+          description: item.genre,
+          image: { uri: item.imageUrl }
+        }))
+      ];
+      setArtists(merged);   // ← 받아온 데이터를 FlatList에 사용
+
+    } catch (error) {
+      console.error("콘서트 불러오기 실패:", error);
+    }
+  };
+  const openUnityApp = async (concertId) => {
     const unityPackageName = 'com.unity.template.ar_mobile';
     
-    console.log("🔥 [JS] openUnityApp() 실행됨");
-    console.log("🔥 [JS] 패키지명:", unityPackageName);
     SendIntentAndroid.isAppInstalled(unityPackageName)
       .then((isInstalled)=> {
-        console.log("🔥 [JS] isAppInstalled 결과:", isInstalled);
         if(isInstalled) {
-          console.log("🔥 [JS] 앱 설치됨 → openApp 호출 시도");
-          SendIntentAndroid.openApp(unityPackageName, {})
+          Alert.alert(
+          "전송 완료",
+          `Unity 앱에 데이터 전달 완료!\nconcertId: ${concertId}`
+        );
+          SendIntentAndroid.openApp(unityPackageName, {
+            "concertId": concertId
+          })
             .then((wasOpened) => {
                 console.log("🔥 [JS] openApp 실행 결과 wasOpened:", wasOpened);
             })
@@ -70,17 +135,20 @@ export default function HomeScreen() {
             });
         } else {
           Alert.alert(
+          "전송 완료",
+          `Unity 앱에 데이터 전달 완료!\nconcertId: ${concertId}`
+        );
+        /*
+          Alert.alert(
             "앱 없음", 
             "유니티 게임 앱이 설치되지 않았습니다."
-          );
+          );*/
         }
       })
       .catch((err)=> {
         console.log("🔥 [JS] isAppInstalled ERROR:", err);
       });
   };
-
-
   const ArtistItem = ({ item }) => (
     <TouchableOpacity
     style={styles.item}
@@ -95,7 +163,7 @@ export default function HomeScreen() {
   const ConcertItem = ({ item }) => (
     <TouchableOpacity
     style={styles.item}
-    onPress={openUnityApp}  // 클릭 시 Unity 앱 열기
+    onPress={() => openUnityApp(item.id)}  // 클릭 시 Unity 앱 열기
     >
       <Image source={ item.image } style={styles.itemImage} />
       <View style={styles.textContainer}>
@@ -119,7 +187,7 @@ export default function HomeScreen() {
           <Text style={styles.midText_r}>Artist</Text>
           <View style={styles.wrapper}>
             <FlatList
-              data={artist_data}
+              data={artists}
               renderItem={ArtistItem}
               keyExtractor={item => item.id}
               contentContainerStyle={styles.list}
@@ -131,7 +199,7 @@ export default function HomeScreen() {
         <Text style={styles.midText_c}>Concert</Text>
         <View style={styles.wrapper}>
           <FlatList
-            data={concert_data}
+            data={concerts}
             renderItem={ConcertItem}
             keyExtractor={item => item.id}
             contentContainerStyle={styles.list}
@@ -142,7 +210,6 @@ export default function HomeScreen() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
